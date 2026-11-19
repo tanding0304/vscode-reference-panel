@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const highlighter = require('highlight.js/lib/core');
+const { semanticLines } = require('./semantic');
 const viewId = 'referenceTabs.results';
 let resultsView;
 let currentResults;
@@ -16,6 +17,20 @@ function highlight(text, language) {
     return language && highlighter.getLanguage(language)
         ? highlighter.highlight(text, { language, ignoreIllegals: true }).value
         : escapeHtml(text);
+}
+
+function renderCode(text, start, end, language, semantic = []) {
+    let offset = start;
+    let html = '';
+    for (const token of semantic) {
+        if (token.end <= offset || token.start >= end) continue;
+        const first = Math.max(offset, token.start);
+        const last = Math.min(end, token.end);
+        html += highlight(text.slice(offset, first), language);
+        html += `<span class="${token.className}">${escapeHtml(text.slice(first, last))}</span>`;
+        offset = last;
+    }
+    return html + highlight(text.slice(offset, end), language);
 }
 
 async function showReferences() {
@@ -35,6 +50,7 @@ async function showReferences() {
 
     const groups = new Map();
     const targets = [];
+    const styles = new Map();
     for (const location of locations) {
         const key = location.uri.toString();
         if (!groups.has(key)) groups.set(key, []);
@@ -43,6 +59,7 @@ async function showReferences() {
     const sections = await Promise.all([...groups.values()].map(async group => {
         const uri = group[0].uri;
         const source = await vscode.workspace.openTextDocument(uri).then(doc => doc, () => undefined);
+        const semantic = await semanticLines(source, styles);
         const hits = new Map();
         for (const location of group.sort((left, right) => left.range.start.compareTo(right.range.start))) {
             const { line, character } = location.range.start;
@@ -61,11 +78,11 @@ async function showReferences() {
                 for (const { index, character, end } of matches) {
                     const start = Math.max(offset, Math.min(text.length, character));
                     const stop = end.line === line ? Math.max(start, Math.min(end.character, text.length)) : text.length;
-                    content += highlight(text.slice(offset, start), source?.languageId);
-                    content += `<button class="match" data-index="${index}" aria-label="Go to line ${line + 1}, column ${character + 1}">${escapeHtml(text.slice(start, stop)) || '↗'}</button>`;
+                    content += renderCode(text, offset, start, source?.languageId, semantic.get(line));
+                    content += `<button class="match" data-index="${index}" aria-label="Go to line ${line + 1}, column ${character + 1}">${renderCode(text, start, stop, source?.languageId, semantic.get(line)) || '↗'}</button>`;
                     offset = stop;
                 }
-                content += highlight(text.slice(offset), source?.languageId);
+                content += renderCode(text, offset, text.length, source?.languageId, semantic.get(line));
                 rows.push(`<div class="row${matches.length ? ' hit' : ''}"><span class="line" aria-hidden="true">${line + 1}</span><code>${content || ' '}</code></div>`);
             }
             return `<div class="excerpt">${rows.join('')}</div>`;
@@ -80,6 +97,7 @@ async function showReferences() {
     const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'">
 <style nonce="${nonce}">
+${[...styles].map(([css, name]) => `.${name}{${css}}`).join('\n')}
 body{padding:0;margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground)}
 header,h2{display:flex;gap:12px;align-items:baseline;padding:8px 16px;margin:0;font-size:12px;border-bottom:1px solid var(--vscode-panel-border)}
 header{position:sticky;top:0;background:var(--vscode-editor-background);z-index:1}

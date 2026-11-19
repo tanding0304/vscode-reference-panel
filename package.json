@@ -2,7 +2,7 @@
   "name": "vscode-reference-panel",
   "displayName": "Reference Panel",
   "description": "Browse semantic references and code previews in the bottom panel.",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "publisher": "tanding0304",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/tanding0304/vscode-reference-panel.git" },
