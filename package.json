@@ -1,11 +1,11 @@
 {
-  "name": "reference-tabs",
-  "displayName": "Reference Tabs",
+  "name": "vscode-reference-panel",
+  "displayName": "Reference Panel",
   "description": "Browse semantic references and code previews in the bottom panel.",
   "version": "0.4.3",
   "publisher": "tanding0304",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/tanding0304/vscode-reference-tabs.git" },
+  "repository": { "type": "git", "url": "https://github.com/tanding0304/vscode-reference-panel.git" },
   "categories": ["Other"],
   "engines": {
     "vscode": "^1.85.0"

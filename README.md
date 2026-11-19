@@ -1,4 +1,4 @@
-# Reference Tabs
+# Reference Panel
 
 Browse semantic references in the VS Code bottom panel. The left pane groups references in a collapsible directory tree. The right pane shows a scrollable source preview with Go and C# syntax highlighting.
 
