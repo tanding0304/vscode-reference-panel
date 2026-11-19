@@ -1,18 +1,39 @@
 {
   "name": "reference-tabs",
   "displayName": "Reference Tabs",
-  "description": "Browse semantic references in a clickable editor tab.",
-  "version": "0.1.0",
-  "publisher": "local-reference-tools",
-  "engines": { "vscode": "^1.85.0" },
+  "description": "Browse semantic references and code previews in the bottom panel.",
+  "version": "0.4.3",
+  "publisher": "tanding0304",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/tanding0304/vscode-reference-tabs.git" },
+  "categories": ["Other"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "referenceTabs.show",
-      "title": "Find All References in Tab"
-    }],
+    "viewsContainers": {
+      "panel": [{ "id": "referenceTabsPanel", "title": "引用", "icon": "references.svg" }]
+    },
+    "views": {
+      "referenceTabsPanel": [{ "type": "webview", "id": "referenceTabs.results", "name": "引用结果" }]
+    },
+    "commands": [
+      {
+        "command": "referenceTabs.show",
+        "title": "Find All References in Panel"
+      }
+    ],
     "menus": {
-      "editor/context": [{ "command": "referenceTabs.show", "group": "navigation@50" }]
+      "editor/context": [
+        {
+          "command": "referenceTabs.show",
+          "group": "navigation@50"
+        }
+      ]
     }
+  },
+  "dependencies": {
+    "highlight.js": "11.11.1"
   }
 }

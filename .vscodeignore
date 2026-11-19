@@ -1,0 +1,7 @@
+node_modules/highlight.js/es/**
+node_modules/highlight.js/scss/**
+node_modules/highlight.js/styles/**
+node_modules/highlight.js/types/**
+node_modules/highlight.js/lib/languages/**
+!node_modules/highlight.js/lib/languages/go.js
+!node_modules/highlight.js/lib/languages/csharp.js
